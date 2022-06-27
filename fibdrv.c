@@ -6,6 +6,9 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/mutex.h>
+#include <linux/slab.h>
+
+#include "bn.h"
 
 MODULE_LICENSE("Dual MIT/GPL");
 MODULE_AUTHOR("National Cheng Kung University, Taiwan");
@@ -13,6 +16,7 @@ MODULE_DESCRIPTION("Fibonacci engine driver");
 MODULE_VERSION("0.1");
 
 #define DEV_FIBONACCI_NAME "fibonacci"
+#define DOUBLING
 
 /* MAX_LENGTH is set to 92 because
  * ssize_t can't fit the number > 92
@@ -24,19 +28,45 @@ static struct cdev *fib_cdev;
 static struct class *fib_class;
 static DEFINE_MUTEX(fib_mutex);
 
-static long long fib_sequence(long long k)
+static long long fib_sequence(long long k, bn_t *ret)
 {
-    /* FIXME: C99 variable-length array (VLA) is not allowed in Linux kernel. */
-    long long f[k + 2];
-
-    f[0] = 0;
-    f[1] = 1;
-
-    for (int i = 2; i <= k; i++) {
-        f[i] = f[i - 1] + f[i - 2];
+    if (k == 0 || k == 1) {
+        ret->num = kmalloc(sizeof(unsigned long long), GFP_KERNEL);
+        ret->num[0] = k;
+        ret->length = 1;
+        return ret->length;
     }
 
-    return f[k];
+    bn_t a, b, res = {};
+    bn_znew(&a, 1);
+    bn_znew(&b, 1);
+
+    if (!a.num || !b.num) {
+        bn_free(&a);
+        bn_free(&b);
+        return 0;
+    }
+    /* caculate fib*/
+    a.num[0] = 0;
+    b.num[0] = 1;
+    bool err = false;
+    for (int i = 2; i <= k; i++) {
+        if (!bn_add(&a, &b, &res)) {
+            err = true;
+            break;
+        }
+        bn_swap(&a, &b);
+        bn_swap(&b, &res);
+    }
+    /* free memory and check no error*/
+    bn_free(&a);
+    bn_free(&res);
+    bn_swap(ret, &b);
+    if (err) {
+        bn_free(ret);
+        return 0;
+    }
+    return ret->length;
 }
 
 static int fib_open(struct inode *inode, struct file *file)
