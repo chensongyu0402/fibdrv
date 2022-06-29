@@ -116,10 +116,10 @@ static ssize_t fib_read(struct file *file,
         return 0;
     }
     access_ok(buf, size);
-    k_to_out = ktime_get();
+    k_to_ut = ktime_get();
     if (copy_to_user(buf, res.num, res_size))
         res_size = 0;
-    k_to_out = ktime_sub(ktime_get(), k_to_out);
+    k_to_ut = ktime_sub(ktime_get(), k_to_ut);
     bn_free(&res);
     return res_size;
 }
