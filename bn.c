@@ -20,7 +20,7 @@ bool bn_zrenew(bn_t *bn_ptr, unsigned long long length)
     }
     unsigned long long *tmp =
         krealloc(bn_ptr->num, sizeof(unsigned long long) * length, GFP_KERNEL);
-    if (temp == NULL)
+    if (tmp == NULL)
         return false;
     memset(tmp, 0, sizeof(unsigned long long) * length);
     bn_ptr->length = length;
