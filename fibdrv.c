@@ -27,7 +27,7 @@ static dev_t fib_dev = 0;
 static struct cdev *fib_cdev;
 static struct class *fib_class;
 static DEFINE_MUTEX(fib_mutex);
-
+/* obtain fibonacci sequence */
 static long long fib_sequence(long long k, bn_t *ret)
 {
     if (k == 0 || k == 1) {
@@ -69,6 +69,11 @@ static long long fib_sequence(long long k, bn_t *ret)
     return ret->length;
 }
 
+static long long fib_doubling(long long k, bn_t *ret)
+{
+    return 0;
+}
+
 static int fib_open(struct inode *inode, struct file *file)
 {
     if (!mutex_trylock(&fib_mutex)) {
@@ -90,7 +95,30 @@ static ssize_t fib_read(struct file *file,
                         size_t size,
                         loff_t *offset)
 {
-    return (ssize_t) fib_sequence(*offset);
+    bn_t res = {};
+    bool doubling = false;
+#ifdef DOUBLING
+    doubling = true;
+#endif
+    kt = ktime_get();
+    ssize_t res_size;
+    if (doubling)
+        res_size = fib_doubling(*offset, &res) * sizeof(unsigned long long);
+    else
+        res_size = fib_sequence(*offset, &res) * sizeof(unsigned long long);
+    kt = ktime_sub(ktime_get(), kt);
+
+    if (res->size <= 0 || res->size > size) {
+        printk("read error:res_size = %ld\n", sres_size);
+        return 0;
+    }
+    access_ok(buf, size);
+    k_to_out = ktime_get();
+    if (copy_to_user(buf, res.num, res_size))
+        res.size = 0;
+    k_to_out = ktime_sub(ktime_get(), k_to_out);
+    bn_free(&res);
+    return res_size;
 }
 
 /* write operation is skipped */
@@ -99,7 +127,11 @@ static ssize_t fib_write(struct file *file,
                          size_t size,
                          loff_t *offset)
 {
-    return 1;
+    if (*offset == 0)
+        return ktime_to_ns(kt);
+    else if (*offset == 1)
+        return ktime_to_ns(k_to_ut);
+    return 0;
 }
 
 static loff_t fib_device_lseek(struct file *file, loff_t offset, int orig)
@@ -117,8 +149,8 @@ static loff_t fib_device_lseek(struct file *file, loff_t offset, int orig)
         break;
     }
 
-    if (new_pos > MAX_LENGTH)
-        new_pos = MAX_LENGTH;  // max case
+    // if (new_pos > MAX_LENGTH)
+    //     new_pos = MAX_LENGTH;  // max case
     if (new_pos < 0)
         new_pos = 0;        // min case
     file->f_pos = new_pos;  // This is what we'll use now
