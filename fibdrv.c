@@ -27,6 +27,9 @@ static dev_t fib_dev = 0;
 static struct cdev *fib_cdev;
 static struct class *fib_class;
 static DEFINE_MUTEX(fib_mutex);
+
+static ktime_t kt;
+static ktime_t k_to_ut;
 /* obtain fibonacci sequence */
 static long long fib_sequence(long long k, bn_t *ret)
 {
@@ -108,14 +111,14 @@ static ssize_t fib_read(struct file *file,
         res_size = fib_sequence(*offset, &res) * sizeof(unsigned long long);
     kt = ktime_sub(ktime_get(), kt);
 
-    if (res->size <= 0 || res->size > size) {
-        printk("read error:res_size = %ld\n", sres_size);
+    if (res_size <= 0 || res_size > size) {
+        printk("read error:res_size = %ld\n", res_size);
         return 0;
     }
     access_ok(buf, size);
     k_to_out = ktime_get();
     if (copy_to_user(buf, res.num, res_size))
-        res.size = 0;
+        res_size = 0;
     k_to_out = ktime_sub(ktime_get(), k_to_out);
     bn_free(&res);
     return res_size;
