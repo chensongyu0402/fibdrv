@@ -100,7 +100,7 @@ static long long fib_doubling(long long k, bn_t *ret)
         err |= !bn_lshift(&t1, 1);     // t1 = 2*b
         err |= !bn_sub(&t1, &a, &t2);  // t1 = 2*b - a
         err |= !bn_new(&t3, a.length);
-        err |= !bn_ move(&a, &t3);  // t3 = a
+        err |= !bn_move(&a, &t3);   // t3 = a
         err |= !bn_mult(&t3, &t2);  // t2 = a(2*b - a)
 
         err |= !bn_mult(&a, &t3);
