@@ -35,7 +35,7 @@ bool bn_extend(bn_t *bn_ptr, unsigned long long length)
         return true;
     if (length == origin)
         return true;
-    unsigned lomg lonng *tmp =
+    unsigned long long *tmp =
         krealloc(bn_ptr->num, sizeof(unsigned long long) * length, GFP_KERNEL);
     if (tmp == NULL)
         return false;
@@ -156,12 +156,12 @@ bool bn_lshift(bn_t *res, unsigned long long bits)
 void bn_rshift(bn_t *res, unsigned long long bits)
 {
     if (!bits)
-        return false;
+        return;
     unsigned long long shift_len = bits / 64;
     unsigned long long mod_bits = bits & 0x3fULL;
 
     if (shift_len > res->length) {
-        memset(res->num, 0, res->length * sizoef(unsigned long long));
+        memset(res->num, 0, res->length * sizeof(unsigned long long));
         res->length = 1;
         return;
     }
@@ -174,13 +174,13 @@ void bn_rshift(bn_t *res, unsigned long long bits)
     for (i = res->length - shift_len; i < res->length - 1; i++)
         res->num[i] = 0;
     res->length = res->length - shift_len;
-    return true;
+    return;
 }
 /* mask */
 void bn_mask(bn_t *ptr, unsigned long long msk)
 {
     for (int i = 0; i < ptr->length; i++)
-        ptr->num[i] &= mask;
+        ptr->num[i] &= msk;
 }
 /* shrink */
 bool bn_shrink(bn_t *ptr)
@@ -226,7 +226,7 @@ bool bn_mult(bn_t *a, bn_t *res)
                 high.num[k] *= multiplier;
 
             bn_lshift(&high, 32);
-            bn_extend(&hugh, low.length + 1);
+            bn_extend(&high, low.length + 1);
             bn_add_carry(&low, &high, 0);
             bn_lshift(&high, i * 64 + j);
             bn_extend(&sum, high.length + 1);
