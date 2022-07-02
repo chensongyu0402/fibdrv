@@ -10,7 +10,15 @@ bool bn_new(bn_t *bn_ptr, unsigned long long length)
         bn_ptr->length = length;
     return !!bn_ptr->num;
 }
-
+/* new zeor binaray */
+bool bn_znew(bn_t *bn_ptr, unsigned long long length)
+{
+    bn_ptr->length = 0;
+    if ((bn_ptr->num =
+             kzalloc(sizeof(unsigned long long) * length, GFP_KERNEL)))
+        bn_ptr->length = length;
+    return !!bn_ptr->num;
+}
 /* set all zero */
 bool bn_zrenew(bn_t *bn_ptr, unsigned long long length)
 {
