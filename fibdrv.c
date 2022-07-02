@@ -74,7 +74,68 @@ static long long fib_sequence(long long k, bn_t *ret)
 
 static long long fib_doubling(long long k, bn_t *ret)
 {
-    return 0;
+    if (k == 0 || k == 1) {
+        ret->num = kmalloc(sizeof(unsigned long long), GFP_KERNEL);
+        ret->length = 1;
+        ret->num[0] = k;
+        return 1;
+    }
+
+    bn_t a, b;
+    bn_znew(&a, 2);
+    bn_znew(&b, 2);
+    int bits = 32 - __builtin_clz(k);
+    if (!a.num || !b.num) {
+        bn_free(&a);
+        bn_free(&b);
+        return 0;
+    }
+    a.num[0] = 0;
+    b.num[0] = 1;
+    bool err = false;
+    for (int i = bits - 1; i >= 0; i--) {
+        bn_t t1 = {}, t2 = {}, t3 = {}, t4 = {};
+        err |= !bn_new(&t1, b.length);
+        err |= !bn_move(&b, &t1);
+        err |= !bn_lshift(&t1, 1);     // t1 = 2*b
+        err |= !bn_sub(&t1, &a, &t2);  // t1 = 2*b - a
+        err |= !bn_new(&t3, a.length);
+        err |= !bn_ move(&a, &t3);  // t3 = a
+        err |= !bn_mult(&t3, &t2);  // t2 = a(2*b - a)
+
+        err |= !bn_mult(&a, &t3);
+        err |= !bn_move(&b, &t1);
+        err |= !bn_mult(&b, &t1);
+        err |= !bn_add(&t3, &t1, &t4);  // t4 = a^2 + b^2
+
+        err |= !bn_extend(&a, t2.length);
+        err |= !bn_extend(&b, t4.length);
+        err |= !bn_move(&t2, &a);
+        err |= !bn_move(&t4, &b);
+
+        if (k & 1 << i) {
+            err |= !bn_add(&a, &b, &t1);  // t1 = a+b
+            err |= !bn_extend(&a, b.length);
+            err |= !bn_move(&b, &a);  // a = b
+            err |= !bn_extend(&b, t1.length);
+            err |= !bn_move(&t1, &b);  // b = t1
+        }
+
+        bn_free(&t1);
+        bn_free(&t2);
+        bn_free(&t3);
+        bn_free(&t4);
+        if (err)
+            break;
+    }
+    bn_swap(&a, ret);
+    bn_free(&a);
+    bn_free(&b);
+    if (err) {
+        bn_free(ret);
+        return 0;
+    }
+    return ret->length;
 }
 
 static int fib_open(struct inode *inode, struct file *file)
