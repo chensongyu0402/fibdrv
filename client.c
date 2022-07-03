@@ -34,7 +34,7 @@ int main()
     /* running */
     int kt[OFFSET][RUNS] = {};
     unsigned long ut[OFFSET][RUNS] = {};
-    int k_to_ut[OFFSET][RUNs] = {};
+    int k_to_ut[OFFSET][RUNS] = {};
     unsigned long total[OFFSET][RUNS] = {};
     FILE *kt_fp = fopen("ktime.txt", "w");
     FILE *k_to_ut_fp = fopen("k_to_utime.txt", "w");
