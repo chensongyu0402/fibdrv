@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 
 def outlier_filter(datas, threshold = 2):
-    datas = np.array(datas).astype(np.int_)
+    datas = np.array(datas).astype(np.uint)
     if (math.isclose(0, datas.std(), rel_tol = 1e-10)):
         return datas
     z = np.abs((datas - datas.mean()) / datas.std())
@@ -31,7 +31,6 @@ if __name__ == "__main__":
         k2ulines = [line.split() for line in textFile]
     with open("total_time.txt") as textFile:
         totallines = [line.split() for line in textFile]
-    fp = open("plot.txt","w")
     klines = data_processing(np.array(klines))
     ulines = data_processing(np.array(ulines))
     k2ulines = data_processing(np.array(k2ulines))
