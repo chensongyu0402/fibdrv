@@ -67,10 +67,10 @@ int main()
     /* store data */
     for (int i = 0; i < offset; i++) {
         for (int j = 0; j < RUNS; j++) {
-            fprintf(ut_fp, "%lu", ut[i][j]);
-            fprintf(kt_fp, "%d", kt[i][j]);
-            fprintf(k_to_ut_fp, "%d", k_to_ut[i][j]);
-            fprintf(total_fp, "%lu", total[i][j]);
+            fprintf(ut_fp, "%lu ", ut[i][j]);
+            fprintf(kt_fp, "%d ", kt[i][j]);
+            fprintf(k_to_ut_fp, "%d ", k_to_ut[i][j]);
+            fprintf(total_fp, "%lu ", total[i][j]);
         }
         fprintf(ut_fp, "\n");
         fprintf(kt_fp, "\n");
