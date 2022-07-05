@@ -37,7 +37,7 @@ static long long fib_sequence(long long k, bn_t *ret)
         ret->num = kmalloc(sizeof(unsigned long long), GFP_KERNEL);
         ret->num[0] = k;
         ret->length = 1;
-        return ret->length;
+        return 1;
     }
 
     bn_t a, b, res = {};
@@ -106,7 +106,7 @@ static long long fib_doubling(long long k, bn_t *ret)
         err |= !bn_mult(&a, &t3);
         err |= !bn_move(&b, &t1);
         err |= !bn_mult(&b, &t1);
-        err |= !bn_add(&t3, &t1, &t4);  // t4 = a^2 + b^2
+        err |= !bn_add(&t1, &t3, &t4);  // t4 = a^2 + b^2
 
         err |= !bn_extend(&a, t2.length);
         err |= !bn_extend(&b, t4.length);
