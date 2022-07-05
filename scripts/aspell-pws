@@ -145,8 +145,6 @@ inode
 sysfs
 printk
 clz
-ctz
-ilog
 fops
 init
 alloc
@@ -158,4 +156,3 @@ ns
 timespec
 timeval
 lkmpg
-vla
