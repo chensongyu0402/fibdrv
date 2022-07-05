@@ -42,7 +42,7 @@ int main()
     FILE *total_fp = fopen("total_time.txt", "w");
     /* calculate tine consumption*/
     for (int j = 0; j < RUNS; j++) {
-        for (int i = 0; i < OFFSET; i++) {
+        for (int i = 0; i < offset; i++) {
             lseek(fd, i, SEEK_SET);
             sz = read(fd, buf, 200 * sizeof(unsigned long long));
             char *str;
@@ -65,7 +65,7 @@ int main()
         }
     }
     /* store data */
-    for (int i = 0; i <= offset; i++) {
+    for (int i = 0; i < offset; i++) {
         for (int j = 0; j < RUNS; j++) {
             fprintf(ut_fp, "%lu", ut[i][j]);
             fprintf(kt_fp, "%d", kt[i][j]);
