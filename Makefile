@@ -42,5 +42,6 @@ check: all
 	@diff -u out scripts/expected.txt && $(call pass)
 	@scripts/verify.py
 
+# python 要看執行電腦的 python 版本，可以是 python or python3
 plot: all
 	@python filter_plot.py
