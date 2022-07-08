@@ -154,7 +154,7 @@ bool bn_lshift(bn_t *res, unsigned long long bits)
 
     for (int i = res->length - 1; i >= shift_len; i--)
         res->num[i] = (res->num[i - shift_len + 1] << mod_bits) |
-                      ((res->num[i - shift_len] >> (63 - shift_len)) >> 1);
+                      ((res->num[i - shift_len] >> (63 - mod_bits)) >> 1);
     res->num[shift_len - 1] = res->num[0] << mod_bits;
     for (int i = 0; i < shift_len - 1; i++)
         res->num[i] = 0;
@@ -176,7 +176,7 @@ void bn_rshift(bn_t *res, unsigned long long bits)
     int i;
     for (i = 0; i < res->length - shift_len - 1; i++)
         res->num[i] = (res->num[i + shift_len] << mod_bits) |
-                      ((res->num[i + shift_len + 1] << (63 - shift_len)) << 1);
+                      ((res->num[i + shift_len + 1] << (63 - mod_bits)) << 1);
     res->num[res->length - shift_len - 1] =
         res->num[res->length - 1] >> mod_bits;
     for (i = res->length - shift_len; i < res->length - 1; i++)
