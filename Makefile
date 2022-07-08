@@ -44,4 +44,4 @@ check: all
 
 # python 要看執行電腦的 python 版本，可以是 python or python3
 plot: all
-	@python filter_plot.py
+	@python3 filter_plot.py
